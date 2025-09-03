@@ -1,0 +1,27 @@
+Создание Django-проекта
+Создание приложения в проекте
+Регистрация приложения
+1. Создать корневую директорию проекта.
+2. В корневой директории проекта создать виртуальное окружение:
+    python -m venv venv 
+3. В корневой директории проекта создать виртуальное окружение:
+    source venv/Scripts/activate
+4. В активированное виртуальное окружение установить фреймворк Django:
+    pip install Django
+5. Создать Django-проект: 
+    django-admin startproject stockroom
+
+Создание приложения в проекте
+    python manage.py startapp data
+Регистрация приложения
+    Добавить в список INSTALLED_APPS в файле settings.py 'имя_приложения.apps.ИмяПриложенияConfig'
+Подключение базы данных к Django
+    Настройки подключения к БД в Django-проекте указываются в константе DATABASES в settings.py (по умолчанию sqlite3)
+Миграции
+    python manage.py makemigrations — создание новых миграций на основе изменений, внесённых в модели.
+    python manage.py migrate — применение миграций.
+    python manage.py sqlmigrate <имя приложения> <номер миграции> — отображение SQL-запросов, которые будут отправлены при миграции.
+Загрузить данные из файла db.json (имя может быть любым) в базу данных:
+    python manage.py loaddata db.json
+Выгрузить данные из БД в файл db.json:
+    python manage.py dumpdata -o db.json
