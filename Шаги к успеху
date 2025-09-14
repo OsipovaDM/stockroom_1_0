@@ -25,3 +25,10 @@
     python manage.py loaddata db.json
 Выгрузить данные из БД в файл db.json:
     python manage.py dumpdata -o db.json
+Регистрация шаблонов на уровне проекта
+    TEMPLATES_DIR = BASE_DIR / 'templates'
+Шаблоны с бустрап 5
+    pip install django-bootstrap5
+    INSTALLED_APPS 'django_bootstrap5',
+
+Пользователи urls шаблоны settings

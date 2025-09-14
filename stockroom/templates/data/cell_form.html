@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}
+  {% if object.pk %}
+    {% if 'edit' in request.path %}
+      Редактирование ячейки {{ object.number }}
+    {% elif 'delete' in request.path %}
+      Удаление ячейки {{ object.number }}
+    {% else %}
+      Создание ячейки
+    {% endif %}
+  {% else %}
+    Создание ячейки
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div>
+    {% if object.pk %}
+      {% if 'edit' in request.path %}
+        <h2>Редактировать ячейку</h2>
+      {% else %}
+        <h2>Удалить ячейку</h2>
+      {% endif %}
+    {% else %}
+      <h2>Создать новую ячейку</h2>
+    {% endif %}
+    
+    <div class="card col-4">
+      <div class="card-header">
+        {% if object.pk %}
+          {% if 'edit' in request.path %}
+            Редактирование ячейки
+          {% elif 'delete' in request.path %}
+            Подтверждение удаления
+          {% else %}
+            Создание ячейки
+          {% endif %}
+        {% else %}
+          Создание ячейки
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {% if not 'delete' in request.path %}
+            {% bootstrap_form form %}
+          {% else %}
+            <p><strong>Номер:</strong> {{ object.number }}</p>
+            <p><strong>Размер:</strong> {{ object.get_size_display }}</p>
+            <p><strong>Статус:</strong> {% if object.is_active %}Активна{% else %}Неактивна{% endif %}</p>
+            <p><strong>Автор:</strong> {{ object.author.get_full_name|default:object.author.username }}</p>
+            <p><strong>Создана:</strong> {{ object.created_at|date:"d.m.Y H:i" }}</p>
+          {% endif %}
+          {% bootstrap_button button_type="submit" content="Готово" %}
+          <a href="{% url 'data:cell_list' %}" class="btn btn-secondary">Отмена</a>
+        </form>
+      </div>
+    </div>
+  
+  <hr>
+  <div>
+    <a href="{% url 'data:cell_list' %}">Список всех ячеек</a>
+    {% if object and object.pk and not 'delete' in request.path %}
+      <a href="{% url 'data:cell_delete' object.pk %}" class="btn btn-outline-danger ms-2">Удалить ячейку</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

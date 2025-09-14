@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'data.apps.DataConfig',
+    'django_bootstrap5',
 ]
 
 MIDDLEWARE = [
@@ -52,10 +53,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'stockroom.urls'
 
+TEMPLATES_DIR = BASE_DIR / 'templates'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATES_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -122,3 +125,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Подключаем бэкенд filebased.EmailBackend:
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# Указываем директорию, в которую будут сохраняться файлы писем:
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+# При входе в систему перенаправлять пользователя на главную страницу
+LOGIN_REDIRECT_URL = 'data:cell_list'
+# Страница по умолчанию для аунтефикации
+LOGIN_URL = 'login'
