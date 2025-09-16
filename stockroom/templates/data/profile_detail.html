@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {{ view }}
+    {{ object|pprint }}
+    {{ request }}
+    
+    
+    <div class="card h-100">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Информация о пользователе</h5>
+        </div>
+        <div class="card-body">
+            <p class="card-text">
+                <strong>Имя пользователя:</strong> {{ user.username }}<br>
+                <strong>Имя:</strong> {{ user.first_name }}<br>
+                <strong>Фамилия:</strong> {{ user.last_name }}<br>
+                <strong>Email:</strong> {{ user.email }}<br>
+                <strong>Активный:</strong>
+                <span class="badge {% if user.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                    {% if user.is_active %}Активен{% else %}Неактивен{% endif %}
+                </span><br>
+
+                {% if user.is_staff or user.is_superuser %}
+                <!-- Полная информация для админов -->
+                <strong>ID:</strong> {{ user.id }}<br>
+                <strong>Дата регистрации:</strong> {{ user.date_joined|date:"d.m.Y H:i" }}<br>
+                <strong>Последний вход:</strong> {{ user.last_login|date:"d.m.Y H:i"|default:"Никогда не входил" }}<br>
+                <strong>Суперпользователь:</strong> {% if user.is_superuser %}Да{% else %}Нет{% endif %}<br>
+                <strong>Персонал:</strong> {% if user.is_staff %}Да{% else %}Нет{% endif %}<br>
+                {% endif %}
+            </p>
+        </div>
+        <!-- Блок кнопок с проверкой прав - Пример, нуждается в адаптации под ваши URL -->
+        {% if user.is_authenticated %}
+        {%if user.is_staff or user.is_superuser or user == object %}
+        <!-- Предполагаем, что у вас есть URL для редактирования профиля и это view DetailView-->
+        <div class="card-footer">
+            <div class="d-flex gap-2">
+                <a href="{% url 'data:profile_edit' user.id %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                <!--  Внимание: возможность удаления пользователя требует особой осторожности -->
+                <a href="{% url 'data:profile_delete' user.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+
+            </div>
+        </div>
+        {% else %}
+        Что-то пошло не так
+        {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}

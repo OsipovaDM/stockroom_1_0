@@ -1,5 +1,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import CreateView, DeleteView, UpdateView, ListView
+from django.contrib.auth.models import User
+from django.views.generic import (
+    CreateView, DeleteView, DetailView, ListView, UpdateView
+)
 from django.urls import reverse_lazy
 
 from .models import Cell
@@ -8,7 +11,13 @@ from .models import Cell
 class AuthorMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         obj = self.get_object()
-        return obj.author == self.request.user or self.request.user.is_admin
+        return obj.author == self.request.user or self.request.user.is_superuser
+
+
+class MeMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        obj = self.get_object()
+        return obj == self.request.user or self.request.user.is_superuser
 
 
 class CellMixin:
@@ -43,7 +52,25 @@ class CellDeleteView(AuthorMixin, CellMixin, DeleteView):
     pass
 
 
+class ProfileMixin:
+    model = User
+    template_name = 'data/profile_form.html'
 
+
+class ProfileDetailView(MeMixin, DetailView):
+    model = User
+    template_name = 'data/profile_detail.html'
+
+
+class ProfileUpdateView(MeMixin, ProfileMixin, UpdateView):
+    fields = 'username', 'first_name', 'last_name', 'email', 'is_active', 'is_staff'
+
+    def get_success_url(self):
+        return reverse_lazy('data:profile_detail', kwargs={'pk': self.object.pk})
+
+
+class ProfileDeleteView(MeMixin, ProfileMixin, DeleteView):
+    success_url = reverse_lazy('data:cell_list')
 
 '''
 

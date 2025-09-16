@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}
+    {% if 'edit' in request.path %}
+        Редактирование профиля {{ object }}
+    {% else %}
+        Удаление профиля {{ object }}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div>
+    {% if 'edit' in request.path %}
+        Редактировать профиль {{ object }}
+    {% else %}
+        Удалить профиль {{ object }}
+    {% endif %}
+    
+    <div class="card col-4">
+      <div class="card-header">
+        {% if 'edit' in request.path %}
+            Редактирование профиля {{ object }}
+        {% else %}
+            Удаление профиля {{ object }}
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {% if not 'delete' in request.path %}
+            <div class="error-message">
+              <ul style="color: red;">
+                {% for error_list in form.errors.values %}
+                  {% for error in error_list %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+              </ul>
+            </div>
+            {% bootstrap_form form %}
+          {% else %}
+            УДАЛЕНИЕ
+            <strong>Имя пользователя:</strong> {{ user.username }}<br>
+            <strong>Имя:</strong> {{ user.first_name }}<br>
+            <strong>Фамилия:</strong> {{ user.last_name }}<br>
+            <strong>Email:</strong> {{ user.email }}<br>
+            <strong>Активный:</strong>
+            <span class="badge {% if user.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                {% if user.is_active %}Активен{% else %}Неактивен{% endif %}
+            </span><br>
+
+            {% if user.is_staff or user.is_superuser %}
+                <!-- Полная информация для админов -->
+                <strong>ID:</strong> {{ user.id }}<br>
+                <strong>Дата регистрации:</strong> {{ user.date_joined|date:"d.m.Y H:i" }}<br>
+                <strong>Последний вход:</strong> {{ user.last_login|date:"d.m.Y H:i"|default:"Никогда не входил" }}<br>
+                <strong>Суперпользователь:</strong> {% if user.is_superuser %}Да{% else %}Нет{% endif %}<br>
+                <strong>Персонал:</strong> {% if user.is_staff %}Да{% else %}Нет{% endif %}<br>
+            {% endif %}
+          {% endif %}
+          {% bootstrap_button button_type="submit" content="Готово" %}
+          <a href="{% url 'data:cell_list' %}" class="btn btn-secondary">Отмена</a>
+        </form>
+      </div>
+    </div>
+  
+  <hr>
+  <div>
+    <a href="{% url 'data:cell_list' %}">Список всех ячеек</a>
+    {% if object and object.pk and not 'delete' in request.path %}
+      <a href="{% url 'data:profile_delete' object.pk %}" class="btn btn-outline-danger ms-2">Удалить профиль</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
