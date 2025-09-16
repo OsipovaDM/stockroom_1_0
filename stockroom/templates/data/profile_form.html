@@ -44,19 +44,6 @@
             <strong>Имя:</strong> {{ user.first_name }}<br>
             <strong>Фамилия:</strong> {{ user.last_name }}<br>
             <strong>Email:</strong> {{ user.email }}<br>
-            <strong>Активный:</strong>
-            <span class="badge {% if user.is_active %}bg-success{% else %}bg-secondary{% endif %}">
-                {% if user.is_active %}Активен{% else %}Неактивен{% endif %}
-            </span><br>
-
-            {% if user.is_staff or user.is_superuser %}
-                <!-- Полная информация для админов -->
-                <strong>ID:</strong> {{ user.id }}<br>
-                <strong>Дата регистрации:</strong> {{ user.date_joined|date:"d.m.Y H:i" }}<br>
-                <strong>Последний вход:</strong> {{ user.last_login|date:"d.m.Y H:i"|default:"Никогда не входил" }}<br>
-                <strong>Суперпользователь:</strong> {% if user.is_superuser %}Да{% else %}Нет{% endif %}<br>
-                <strong>Персонал:</strong> {% if user.is_staff %}Да{% else %}Нет{% endif %}<br>
-            {% endif %}
           {% endif %}
           {% bootstrap_button button_type="submit" content="Готово" %}
           <a href="{% url 'data:cell_list' %}" class="btn btn-secondary">Отмена</a>

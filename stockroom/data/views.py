@@ -55,6 +55,7 @@ class CellDeleteView(AuthorMixin, CellMixin, DeleteView):
 class ProfileMixin:
     model = User
     template_name = 'data/profile_form.html'
+    success_url = reverse_lazy('data:cell_list')
 
 
 class ProfileListView(ListView):
@@ -70,14 +71,11 @@ class ProfileDetailView(MeMixin, DetailView):
 
 
 class ProfileUpdateView(MeMixin, ProfileMixin, UpdateView):
-    fields = 'username', 'first_name', 'last_name', 'email', 'is_active', 'is_staff'
-
-    def get_success_url(self):
-        return reverse_lazy('data:profile_detail', kwargs={'pk': self.object.pk})
+    fields = 'username', 'first_name', 'last_name', 'email'
 
 
 class ProfileDeleteView(MeMixin, ProfileMixin, DeleteView):
-    success_url = reverse_lazy('data:cell_list')
+    pass
 
 '''
 

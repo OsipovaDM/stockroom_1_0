@@ -35,9 +35,9 @@
 
           {% if user.is_authenticated %}
           <!-- Это блок ссылок для администраторов -->
-            {% if user.is_superuser %}
+            {% if request.user.is_superuser %}
               <li class="nav-item">
-              <a class="nav-link {% if view_name == 'data:profile_list' %} active {% endif %}" 
+              <a class="nav-link{% if view_name == 'data:profile_list' %} active {% endif %}" 
                 href="{% url 'data:profile_list' %}"> Список пользователей </a> 
               </li>
             {% endif %}
