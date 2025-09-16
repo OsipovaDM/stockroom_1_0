@@ -57,6 +57,13 @@ class ProfileMixin:
     template_name = 'data/profile_form.html'
 
 
+class ProfileListView(ListView):
+    model = User
+    ordering = 'username'
+    paginate_by = 5
+    template_name = 'data/profile_list.html'
+
+
 class ProfileDetailView(MeMixin, DetailView):
     model = User
     template_name = 'data/profile_detail.html'

@@ -33,9 +33,22 @@
             </a> 
           </li>
 
-          <!-- Это блок ссылок для авторизованного пользователя -->
           {% if user.is_authenticated %}
+          <!-- Это блок ссылок для администраторов -->
+            {% if user.is_superuser %}
+              <li class="nav-item">
+              <a class="nav-link {% if view_name == 'data:profile_list' %} active {% endif %}" 
+                href="{% url 'data:profile_list' %}"> Список пользователей </a> 
+              </li>
+            {% endif %}
+          <!-- Конец блока ссылок для администраторов -->
+
+          <!-- Это блок ссылок для авторизованного пользователя -->
             <span class="navbar-text">Пользователь: <b>{{ user.username }}</b></span>
+            <li class="nav-item">
+              <a class="nav-link{% if view_name == 'data:profile_edit' %} active {% endif %}"
+                href="{% url 'data:profile_edit' user.pk %}">Редактировать профиль</a>
+            </li>
             <li class="nav-item">
               <a class="nav-link{% if view_name == 'password_change' %} active {% endif %}"
                 href="{% url 'password_change' %}">Изменить пароль</a>

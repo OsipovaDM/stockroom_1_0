@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Список пользователей
+{% endblock %}
+
+{% block content %}
+  <div>
+    <h2>Список пользователей</h2>
+
+    <div class="row">
+      {% for profile in user_list %}
+        <div class="col-md-6 col-lg-4 mb-3">
+          <div class="card h-100">
+            <div class="card-header">
+              <h5 class="card-title mb-0">Пользователь {{ profile.username }}</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text">
+                <strong>Имя пользователя:</strong> {{ user.username }}<br>
+                <strong>Имя:</strong> {{ user.first_name }}<br>
+                <strong>Фамилия:</strong> {{ user.last_name }}<br>
+                <strong>Email:</strong> {{ user.email }}<br>
+                <strong>Активный:</strong>
+                <span class="badge {% if user.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                    {% if user.is_active %}Активен{% else %}Неактивен{% endif %}
+                </span><br>
+
+                {% if user.is_staff or user.is_superuser %}
+                    <!-- Полная информация для админов -->
+                    <strong>ID:</strong> {{ user.id }}<br>
+                    <strong>Дата регистрации:</strong> {{ user.date_joined|date:"d.m.Y H:i" }}<br>
+                    <strong>Последний вход:</strong> {{ user.last_login|date:"d.m.Y H:i"|default:"Никогда не входил" }}<br>
+                    <strong>Суперпользователь:</strong> {% if user.is_superuser %}Да{% else %}Нет{% endif %}<br>
+                    <strong>Персонал:</strong> {% if user.is_staff %}Да{% else %}Нет{% endif %}<br>
+                {% endif %}
+              </p>
+            </div>
+            
+            <!-- Блок кнопок с проверкой прав -->
+            {% if user.is_authenticated %}
+              {%if user.is_staff or user.is_superuser or user == profile %}
+                <div class="card-footer">
+                    <div class="d-flex gap-2">
+                    <a href="{% url 'data:profile_edit' profile.id %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                    <a href="{% url 'data:profile_delete' profile.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+                    </div>
+                </div>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="alert alert-info">
+            Пользователи не найдены.
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Статистика для админов -->
+    {% if user.is_staff or user.is_superuser %}
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5>Статистика</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <strong>Всего пользователей: </strong> {{ profile_list.count }}
+                </div>
+                <div class="col-md-3">
+                  <strong>Активных: </strong> {{ profile_list|length|add:"0" }} заглушка  <!-- Заглушка, нужно передавать в контекст -->
+                </div>
+                <div class="col-md-3">
+                  <strong>Замороженных:</strong> 0 заглушка <!-- Заглушка -->
+                </div>
+                <div class="col-md-3">
+                  <strong>Еще что-то: </strong> заглушка
+                  <!-- Можно добавить группировку по размеру -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% include "includes/paginator.html" %}
+  </div>
+{% endblock %}

@@ -19,6 +19,7 @@ urlpatterns = [
     # path('orders/<int:id>/edit/', views.order_edit, name='order_edit'),
     # path('orders/<int:id>/delete/', views.order_delete, name='order_delete'),
     # path('me/', views.account, name='account'),
+    path('profile/list/', views.ProfileListView.as_view(), name='profile_list'),
     path('profile/<int:pk>/', views.ProfileDetailView.as_view(), name='profile_detail'),
     path('profile/<int:pk>/edit/', views.ProfileUpdateView.as_view(), name='profile_edit'),
     path('profile/<int:pk>/delete/', views.ProfileDeleteView.as_view(), name='profile_delete'),
