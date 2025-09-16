@@ -33,7 +33,7 @@ class CellFormMixin:
 class CellListView(ListView):
     model = Cell
     ordering = 'number'
-    paginated_by = 10
+    paginate_by = 5
 
 
 class CellCreateView(LoginRequiredMixin, CellMixin, CellFormMixin, CreateView):

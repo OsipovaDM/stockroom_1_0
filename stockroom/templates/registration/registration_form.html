@@ -9,6 +9,15 @@
     <div class="card-body">
       <form method="post">
         {% csrf_token %}
+        <div class="error-message">
+            <ul style="color: red;">
+            {% for error_list in form.errors.values %}
+                {% for error in error_list %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            </ul>
+        </div>
         {% bootstrap_form form %}
         {% bootstrap_button button_type="submit" content="Зарегистрироваться" %}
       </form>

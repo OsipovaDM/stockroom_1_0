@@ -44,7 +44,7 @@
       <div class="card-body">
         <form method="post">
           {% csrf_token %}
-          {% if not 'delete' in request.path and form.errors %}
+          {% if not 'delete' in request.path %}
             <div class="error-message">
               <ul style="color: red;">
                 {% for error_list in form.errors.values %}
