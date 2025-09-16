@@ -44,19 +44,16 @@
       <div class="card-body">
         <form method="post">
           {% csrf_token %}
-          {% if not 'delete' in request.path %}
-            {% if form.errors %}
-              <div class="error-message">
-              {% for field, errors in form.errors.items %}
-                <p><strong>{{ field }}:</strong></p>
-                <ul>
-                  {% for error in errors %}
+          {% if not 'delete' in request.path and form.errors %}
+            <div class="error-message">
+              <ul style="color: red;">
+                {% for error_list in form.errors.values %}
+                  {% for error in error_list %}
                     <li>{{ error }}</li>
                   {% endfor %}
-                </ul>
-              {% endfor %}
-              </div>
-            {% endif %}
+                {% endfor %}
+              </ul>
+            </div>
             {% bootstrap_form form %}
           {% else %}
             <p><strong>Номер:</strong> {{ object.number }} </p>

@@ -30,7 +30,7 @@ class Cell(BaseModel):
         ('large', 'Расширенный'),
     ]
 
-    number = models.CharField('Номер', max_length=4, unique=True, validators=[RegexValidator(regex=r'^[A-Z]{2}\d{2}$', message='Несоответствие формата')], help_text='Формат: ZZ00')
+    number = models.CharField('Номер', max_length=4, unique=True, validators=[RegexValidator(regex=r'^[A-Z]{2}\d{2}$', message='Несоответствие формата номера')], help_text='Формат: ZZ00')
     size = models.CharField('Размер', max_length=6, choices=SIZE_CHOICES)
 
     def __str__(self):
