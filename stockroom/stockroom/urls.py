@@ -5,6 +5,7 @@ from django.urls import include, path, reverse_lazy
 
 urlpatterns = [
     path('', include('data.urls')),
+    path('', include('pages.urls')),
     path('admin/', admin.site.urls),
     path(
         'auth/registration/',

@@ -47,7 +47,6 @@
   
   <hr>
   <div>
-    <a href="{% url 'data:cell_list' %}">Список всех ячеек</a>
     {% if object and object.pk and not 'delete' in request.path %}
       <a href="{% url 'data:profile_delete' object.pk %}" class="btn btn-outline-danger ms-2">Удалить профиль</a>
     {% endif %}
