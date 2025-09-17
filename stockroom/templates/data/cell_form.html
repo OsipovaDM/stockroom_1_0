@@ -5,10 +5,8 @@
   {% if object.pk %}
     {% if 'edit' in request.path %}
       Редактирование ячейки {{ object.number }}
-    {% elif 'delete' in request.path %}
+    {% else  %}
       Удаление ячейки {{ object.number }}
-    {% else %}
-      Создание ячейки
     {% endif %}
   {% else %}
     Создание ячейки
@@ -17,25 +15,13 @@
 
 {% block content %}
 <div>
-    {% if object.pk %}
-      {% if 'edit' in request.path %}
-        <h2>Редактировать ячейку</h2>
-      {% else %}
-        <h2>Удалить ячейку</h2>
-      {% endif %}
-    {% else %}
-      <h2>Создать новую ячейку</h2>
-    {% endif %}
-    
     <div class="card col-4">
       <div class="card-header">
         {% if object.pk %}
           {% if 'edit' in request.path %}
             Редактирование ячейки
-          {% elif 'delete' in request.path %}
-            Подтверждение удаления
           {% else %}
-            Создание ячейки
+            Подтверждение удаления
           {% endif %}
         {% else %}
           Создание ячейки

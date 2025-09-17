@@ -11,12 +11,6 @@
 
 {% block content %}
 <div>
-    {% if 'edit' in request.path %}
-        Редактировать профиль {{ object }}
-    {% else %}
-        Удалить профиль {{ object }}
-    {% endif %}
-    
     <div class="card col-4">
       <div class="card-header">
         {% if 'edit' in request.path %}

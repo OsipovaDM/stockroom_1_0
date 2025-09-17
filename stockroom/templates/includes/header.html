@@ -33,9 +33,9 @@
             </a> 
           </li>
 
-          {% if user.is_authenticated %}
-          <!-- Это блок ссылок для администраторов -->
-            {% if request.user.is_superuser %}
+          {% if request.user.is_authenticated %}
+          <!-- Это блок ссылок для работников компании -->
+            {% if request.user.is_staff or request.user.is_superuser %}
               <li class="nav-item">
               <a class="nav-link{% if view_name == 'data:profile_list' %} active {% endif %}" 
                 href="{% url 'data:profile_list' %}"> Список пользователей </a> 
@@ -44,7 +44,7 @@
           <!-- Конец блока ссылок для администраторов -->
 
           <!-- Это блок ссылок для авторизованного пользователя -->
-            <span class="navbar-text">Пользователь: <b>{{ user.username }}</b></span>
+            <span class="navbar-text">Пользователь: <b>{{ request.user.username }}</b></span>
             <li class="nav-item">
               <a class="nav-link{% if view_name == 'data:profile_edit' %} active {% endif %}"
                 href="{% url 'data:profile_edit' user.pk %}">Редактировать профиль</a>

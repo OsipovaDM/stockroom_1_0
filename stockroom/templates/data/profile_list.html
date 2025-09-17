@@ -13,7 +13,14 @@
         <div class="col-md-6 col-lg-4 mb-3">
           <div class="card h-100">
             <div class="card-header">
-              <h5 class="card-title mb-0">Пользователь {{ profile.username }}</h5>
+              <h5 class="card-title mb-0">
+                {{ profile.username }}
+                {% if profile.is_superuser %}
+                    <span class="badge bg-danger">Администратор</span>
+                {% elif profile.is_staff %}
+                    <span class="badge bg-success">Работник</span>
+                {% endif %}
+              </h5>
             </div>
             <div class="card-body">
               <p class="card-text">
@@ -26,11 +33,13 @@
             
             <!-- Блок кнопок с проверкой прав -->
             {% if user.is_authenticated %}
-              {%if user.is_staff or user.is_superuser or user == profile %}
+              {%if user.is_staff or user.is_superuser %}
                 <div class="card-footer">
                     <div class="d-flex gap-2">
                     <a href="{% url 'data:profile_edit' profile.id %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
-                    <a href="{% url 'data:profile_delete' profile.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+                    {%if user == profile or user.is_superuser %}
+                        <a href="{% url 'data:profile_delete' profile.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+                    {% endif %}
                     </div>
                 </div>
               {% endif %}

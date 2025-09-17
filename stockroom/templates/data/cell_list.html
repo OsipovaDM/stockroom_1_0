@@ -40,7 +40,7 @@
             
             <!-- Блок кнопок с проверкой прав -->
             {% if user.is_authenticated %}
-              {%if user.is_staff or user.is_superuser or user == cell.author %}
+              {%if user == cell.author or user.is_superuser %}
                 <div class="card-footer">
                     <div class="d-flex gap-2">
                     <a href="{% url 'data:cell_edit' cell.id %}" class="btn btn-sm btn-outline-primary">Редактировать</a>

@@ -8,10 +8,24 @@ from django.urls import reverse_lazy
 from .models import Cell
 
 
+class WorkerMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        user = self.request.user
+        return user.is_staff or user.is_superuser
+
+
+class AuthorWorkerMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        obj = self.get_object()
+        user = self.request.user
+        return obj.author == user or user.is_staff or user.is_superuser
+
+
 class AuthorMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         obj = self.get_object()
-        return obj.author == self.request.user or self.request.user.is_superuser
+        user = self.request.user
+        return obj.author == user or user.is_superuser
 
 
 class MeMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -36,7 +50,7 @@ class CellListView(ListView):
     paginate_by = 5
 
 
-class CellCreateView(LoginRequiredMixin, CellMixin, CellFormMixin, CreateView):
+class CellCreateView(WorkerMixin, CellMixin, CellFormMixin, CreateView):
     pass
 
     def form_valid(self, form):
@@ -58,19 +72,19 @@ class ProfileMixin:
     success_url = reverse_lazy('data:cell_list')
 
 
-class ProfileListView(ListView):
+class ProfileListView(WorkerMixin, ListView):
     model = User
     ordering = 'username'
     paginate_by = 5
     template_name = 'data/profile_list.html'
 
 
-class ProfileDetailView(MeMixin, DetailView):
+class ProfileDetailView(MeMixin, WorkerMixin, DetailView):
     model = User
     template_name = 'data/profile_detail.html'
 
 
-class ProfileUpdateView(MeMixin, ProfileMixin, UpdateView):
+class ProfileUpdateView(MeMixin, WorkerMixin, ProfileMixin, UpdateView):
     fields = 'username', 'first_name', 'last_name', 'email'
 
 
