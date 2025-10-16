@@ -37,22 +37,23 @@ class Cell(BaseModel):
         return self.number
 
 
-# class Tariff(models.Model):
-#     """
-#     Тариф
-#     """
-#     name = models.CharField('Название', max_length=255)
-#     cell_size = models.CharField('Размер ячейки', max_length=6, choices=Cell.SIZE_CHOICES)
-#     duration = models.PositiveIntegerField('Длительность (дней)')
-#     cost = models.DecimalField('Стоимость', max_digits=10, decimal_places=2)
-#     is_active = models.BooleanField('Активен', default=True)
+class Tariff(BaseModel):
+    """
+    Тариф
+    """
+    name = models.CharField('Название', max_length=255)
+    cell_size = models.CharField('Размер ячейки', max_length=6, choices=Cell.SIZE_CHOICES)
+    duration = models.PositiveIntegerField('Длительность (дней)')
+    cost = models.DecimalField('Стоимость', max_digits=10, decimal_places=2)
 
-#     def clean(self):
-#         if self.cost <= 0:
-#             raise ValidationError('Стоимость должна быть положительна.')
+    def clean(self):
+        if self.cost <= 0:
+            raise ValidationError('Стоимость должна быть положительна.')
+        if self.duration <= 0:
+            raise ValidationError('Длительность должна быть положительна.')
 
-#     def __str__(self):
-#         return self.name
+    def __str__(self):
+        return self.name
 
 
 # class Promotion(models.Model):

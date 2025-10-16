@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}
+  {% if object.pk %}
+    {% if 'edit' in request.path %}
+      Редактирование тарифа {{ object.name }}
+    {% else  %}
+      Удаление тарифа {{ object.name }}
+    {% endif %}
+  {% else %}
+    Создание тарифа
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="card col-4">
+      <div class="card-header">
+        {% if object.pk %}
+          {% if 'edit' in request.path %}
+            Редактирование тарифа
+          {% else %}
+            Подтверждение удаления
+          {% endif %}
+        {% else %}
+          Создание тарифа
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {% if not 'delete' in request.path %}
+            <div class="error-message">
+              <ul style="color: red;">
+                {% for error_list in form.errors.values %}
+                  {% for error in error_list %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+              </ul>
+            </div>
+            {% bootstrap_form form %}
+          {% else %}
+            <p><strong>Название:</strong> {{ object.name }}</p>
+            <p><strong>Размер ячейки:</strong> {{ object.cell_size }}</p>
+            <p><strong>Длительность:</strong> {{ object.duration }} дней</p>
+            <p><strong>Стоимость:</strong> {{ object.cost }} руб.</p>
+            <p><strong>Статус:</strong> {% if object.is_active %}Активен{% else %}Неактивен{% endif %}</p>
+            <p><strong>Автор:</strong> {{ object.author.get_full_name|default:object.author.username }}</p>
+            <p><strong>Создан:</strong> {{ object.created_at|date:"d.m.Y H:i" }}</p>
+          {% endif %}
+          {% bootstrap_button button_type="submit" content="Готово" %}
+          <a href="{% url 'data:tariff_list' %}" class="btn btn-secondary">Отмена</a>
+        </form>
+      </div>
+    </div>
+  
+  <hr>
+  <div>
+    {% if object and object.pk and not 'delete' in request.path %}
+      <a href="{% url 'data:tariff_delete' object.pk %}" class="btn btn-outline-danger ms-2">Удалить тариф</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

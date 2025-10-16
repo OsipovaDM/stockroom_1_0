@@ -5,7 +5,7 @@ from django.views.generic import (
 )
 from django.urls import reverse_lazy
 
-from .models import Cell
+from .models import Cell, Tariff
 
 
 class WorkerMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -91,26 +91,24 @@ class ProfileUpdateView(MeMixin, WorkerMixin, ProfileMixin, UpdateView):
 class ProfileDeleteView(MeMixin, ProfileMixin, DeleteView):
     pass
 
-'''
-
 
 class TariffMixin:
     model = Tariff
-    success_url = reverse_lazy('data:tariffs')
+    success_url = reverse_lazy('data:tariff_list')
+    template_name = 'data/tariff_form.html'
 
 
 class TariffFormMixin:
-    template_name = 'tariff/create.html'
-    fields = 'name', 'cell_size', 'duration', 'cost', 'is_active', 'author'
+    fields = 'name', 'cell_size', 'duration', 'cost'
 
 
-class TariffListView(ListVieW):
+class TariffListView(ListView):
     model = Tariff
-    ordering = 'cost'
-    paginate_by = 10
+    ordering = 'name'
+    paginate_by = 5
 
 
-class TariffCreateView(TariffMixin, TariffFormMixin, CreateView):
+class TariffCreateView(WorkerMixin, TariffMixin, TariffFormMixin, CreateView):
     pass
 
     def form_valid(self, form):
@@ -118,14 +116,15 @@ class TariffCreateView(TariffMixin, TariffFormMixin, CreateView):
         return super().form_valid(form)
 
 
-class TariffUpdateView(TariffMixin, TariffFormMixin, UpdateView):
+class TariffUpdateView(AuthorMixin, TariffMixin, TariffFormMixin, UpdateView):
     pass
 
 
-class TariffDeleteView(TariffMixin, DeleteView):
+class TariffDeleteView(AuthorMixin, TariffMixin, DeleteView):
     pass
-    
 
+
+'''
 class PromotionMixin:
     model = Promotion
     success_url = reverse_lazy('data:promotions')

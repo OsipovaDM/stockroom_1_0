@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Список тарифов
+{% endblock %}
+
+{% block content %}
+  <div>
+    <h2>Список тарифов</h2>
+    
+    {% if user.is_authenticated %}
+      <div class="mb-3">
+        <a href="{% url 'data:tariff_create' %}" class="btn btn-primary">Добавить новый тариф</a>
+      </div>
+    {% endif %}
+
+    <div class="row">
+      {% for tariff in tariff_list %}
+        <div class="col-md-6 col-lg-4 mb-3">
+          <div class="card h-100">
+            <div class="card-header">
+              <h5 class="card-title mb-0">{{ tariff.name }}</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text">
+                <strong>Размер ячейки:</strong> {{ tariff.cell_size }}<br>
+                <strong>Длительность:</strong> {{ tariff.duration }} дней<br>
+                <strong>Стоимость:</strong> {{ tariff.cost }} руб.<br>
+                <strong>Статус:</strong> 
+                <span class="badge {% if tariff.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                  {% if tariff.is_active %}Активен{% else %}Неактивен{% endif %}
+                </span><br>
+                
+                {% if user.is_staff or user.is_superuser %}
+                  <!-- Полная информация для админов -->
+                  <strong>Автор:</strong> {{ tariff.author.get_full_name|default:tariff.author.username }}<br>
+                  <strong>Создан:</strong> {{ tariff.created_at|date:"d.m.Y H:i" }}<br>
+                  <strong>ID:</strong> {{ tariff.id }}<br>
+                {% endif %}
+              </p>
+            </div>
+            
+            <!-- Блок кнопок с проверкой прав -->
+            {% if user.is_authenticated %}
+              {%if user == tariff.author or user.is_superuser %}
+                <div class="card-footer">
+                    <div class="d-flex gap-2">
+                    <a href="{% url 'data:tariff_edit' tariff.id %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                    <a href="{% url 'data:tariff_delete' tariff.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+                    </div>
+                </div>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="alert alert-info">
+            Тарифы не найдены.
+            {% if user.is_authenticated %}
+              <a href="{% url 'data:tariff_create' %}">Добавить первый тариф</a>
+            {% else %}
+              <a href="{% url 'login' %}">Войдите</a>, чтобы добавить тариф
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Статистика для админов -->
+    {% if user.is_staff or user.is_superuser %}
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5>Статистика тарифов</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <strong>Всего тарифов: </strong> {{ tariff_list.count }}
+                </div>
+                <div class="col-md-3">
+                  <strong>Активных: </strong> {{ tariff_list|length|add:"0" }} заглушка  <!-- Заглушка, нужно передавать в контекст -->
+                </div>
+                <div class="col-md-3">
+                  <strong>Неактивных:</strong> 0 заглушка <!-- Заглушка -->
+                </div>
+                <div class="col-md-3">
+                  <strong>По размеру: </strong> заглушка
+                  <!-- Можно добавить группировку по размеру ячейки -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% include "includes/paginator.html" %}
+  </div>
+{% endblock %}
