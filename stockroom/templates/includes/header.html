@@ -32,6 +32,14 @@
               Каталог ячеек
             </a> 
           </li>
+          <li class="nav-item">
+            <a 
+              class="nav-link {% if view_name == 'data:tariff_list' %} active {% endif %}" 
+              href="{% url 'data:tariff_list' %}"
+              >
+              Список тарифов
+            </a> 
+          </li>
 
           {% if request.user.is_authenticated %}
           <!-- Это блок ссылок для работников компании -->
