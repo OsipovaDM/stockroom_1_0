@@ -6,11 +6,12 @@
 
 {% block content %}
   <div>
-    <h2>Список ячеек</h2>
+    
+    <h2>Ячейки</h2>
     
     {% if user.is_superuser or user.is_staff %}
       <div class="mb-3">
-        <a href="{% url 'data:cell_create' %}" class="btn btn-primary">Добавить новую ячейку</a>
+        <a href="{% url 'data:cell_create' %}" class="btn btn-primary">Добавить новую</a>
       </div>
     {% endif %}
 
@@ -19,7 +20,7 @@
         <div class="col-12">
           <div class="card">
             <div class="card-header">
-              <h5>Доступные ячейки</h5>
+              <h5>Доступные для бронирования</h5>
             </div>
             <div class="card-body">
               <div class="row">
@@ -52,8 +53,8 @@
                 <p class="card-text">
                   <strong>Размер:</strong> {{ cell.get_size_display }}<br>
                   <strong>Статус:</strong> 
-                  <span class="badge {% if cell.is_active %}bg-success{% else %}bg-secondary{% endif %}">
-                    {% if cell.is_active %}Свободна{% else %}Занята{% endif %}
+                  <span class="badge {% if cell.is_free %}bg-success{% else %}bg-secondary{% endif %}">
+                    {% if cell.is_free %}Свободна{% else %}Занята{% endif %}
                   </span><br>
                   
                   {% if user.is_staff or user.is_superuser %}
@@ -84,6 +85,8 @@
         {% endfor %}
       </div>
       {% include "includes/paginator.html" %}
+    {% else %}
+      Какая-то информация про разные типы ячеек в красивом оформлении
     {% endif %}
   </div>
 {% endblock %}

@@ -1,9 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.db.models import Exists, OuterRef
 from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, UpdateView
 )
 from django.urls import reverse_lazy
+from django.utils import timezone
 
 from .models import Cell, Tariff, Promotion, Order
 
@@ -47,20 +49,39 @@ class CellFormMixin:
 class CellListView(ListView):
     model = Cell
     ordering = 'number'
-    paginate_by = 5
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        today = timezone.now().date()
+        active_orders = Order.objects.filter(
+            cell=OuterRef('pk'),
+            rental_start_date__lte=today,
+            rental_end_date__gte=today,
+            is_active=True
+        )
+
+        return queryset.annotate(
+            is_free=~Exists(active_orders)
+        )
 
     def get_context_data(self, **kwargs):
-        context = {}
-        cells = Cell.objects.filter(is_active=True)
+        context = super().get_context_data(**kwargs)
+
+        free_cells = self.object_list.filter(is_free=True)
+
         context['size_stats'] = {
-            'small': cells.filter(size='small').count(),
-            'medium': cells.filter(size='medium').count(),
-            'large': cells.filter(size='large').count(),
+            'small': free_cells.filter(size='small').count(),
+            'medium': free_cells.filter(size='medium').count(),
+            'large': free_cells.filter(size='large').count(),
         }
 
         user = self.request.user
-        if user.is_authenticated or (user.is_staff or user.is_superuser):
-            context.update(super().get_context_data(**kwargs))
+        if not user.is_authenticated or not (user.is_staff or user.is_superuser):
+            size_stats = context['size_stats']
+            context.clear()
+            context['size_stats'] = size_stats
 
         return context
 
