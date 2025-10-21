@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Список акций
+{% endblock %}
+
+{% block content %}
+  <div>
+    <h2>Список акций</h2>
+    
+    {% if user.is_superuser or user.is_staff %}
+      <div class="mb-3">
+        <a href="{% url 'data:promotion_create' %}" class="btn btn-primary">Добавить новую акцию</a>
+      </div>
+    {% endif %}
+
+    <div class="row">
+      {% for promotion in promotion_list %}
+        <div class="col-md-6 col-lg-4 mb-3">
+          <div class="card h-100">
+            <div class="card-header">
+              <h5 class="card-title mb-0">{{ promotion.name }}</h5>
+            </div>
+            {% if promotion.promotion_type == 'personal' and promotion.target_user == user or promotion.promotion_type == 'general' or user.is_staff or user.is_superuser%}
+                <div class="card-body">
+                <p class="card-text">
+                    <strong>Тип акции:</strong> {{ promotion.get_promotion_type_display }}<br>
+                    <strong>Скидка:</strong> {{ promotion.discount_percentage|floatformat:2 }}<br>
+                    <strong>Период:</strong> {{ promotion.start_date|date:"d.m.Y" }} - {{ promotion.end_date|date:"d.m.Y" }}<br>
+                    <strong>Описание:</strong> {{ promotion.description|truncatewords:10 }}<br>
+                    <strong>Статус:</strong> 
+                    <span class="badge {% if promotion.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                    {% if promotion.is_active %}Активна{% else %}Неактивна{% endif %}
+                    </span><br>
+                    
+                    {% if user.is_staff or user.is_superuser %}
+                    <!-- Полная информация для админов -->
+                    <strong>Для пользователя:</strong> {% if promotion.target_user %} {{ promotion.target_user.get_full_name|default:promotion.target_user.username }} {% else %} -- {% endif %}<br>
+                    <strong>Автор:</strong> {{ promotion.author.get_full_name|default:promotion.author.username }}<br>
+                    <strong>Создана:</strong> {{ promotion.created_at|date:"d.m.Y H:i" }}<br>
+                    <strong>ID:</strong> {{ promotion.id }}<br>
+                    {% endif %}
+                </p>
+                </div>
+            {% endif %}
+
+            <!-- Блок кнопок с проверкой прав -->
+            {% if user.is_authenticated %}
+              {%if user == promotion.author or user.is_superuser %}
+                <div class="card-footer">
+                    <div class="d-flex gap-2">
+                    <a href="{% url 'data:promotion_edit' promotion.id %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                    <a href="{% url 'data:promotion_delete' promotion.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+                    </div>
+                </div>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="alert alert-info">
+            Акции не найдены.
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Статистика для админов -->
+    {% if user.is_staff or user.is_superuser %}
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5>Статистика акций</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <strong>Всего акций: </strong> {{ promotion_list.count }}
+                </div>
+                <div class="col-md-3">
+                  <strong>Активных: </strong> {{ promotion_list|length|add:"0" }} заглушка  <!-- Заглушка, нужно передавать в контекст -->
+                </div>
+                <div class="col-md-3">
+                  <strong>Общих:</strong> 0 заглушка <!-- Заглушка -->
+                </div>
+                <div class="col-md-3">
+                  <strong>Персональных:</strong> 0 заглушка <!-- Заглушка -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% include "includes/paginator.html" %}
+  </div>
+{% endblock %}

@@ -13,7 +13,8 @@ class BaseModel(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Автор'
+        verbose_name='Автор',
+        related_name='%(class)s_authored'
     )
 
     class Meta:
@@ -41,7 +42,7 @@ class Tariff(BaseModel):
     """
     Тариф
     """
-    name = models.CharField('Название', max_length=255)
+    name = models.CharField('Название', max_length=255, unique=True)
     cell_size = models.CharField('Размер ячейки', max_length=6, choices=Cell.SIZE_CHOICES)
     duration = models.PositiveIntegerField('Длительность (дней)')
     cost = models.DecimalField('Стоимость', max_digits=10, decimal_places=2)
@@ -56,36 +57,35 @@ class Tariff(BaseModel):
         return self.name
 
 
-# class Promotion(models.Model):
-#     """
-#     Акция
-#     """
-#     PROMOTION_TYPES = [
-#         ('general', 'Общая'),
-#         ('personal', 'Персональная'),
-#     ]
+class Promotion(BaseModel):
+    """
+    Акция
+    """
+    PROMOTION_TYPES = [
+        ('general', 'Общая'),
+        ('personal', 'Персональная'),
+    ]
 
-#     name = models.CharField('Название', max_length=255)
-#     discount_percentage = models.DecimalField(
-#         'Скидка в долях', max_digits=5, decimal_places=4, validators=[MinValueValidator(0), MaxValueValidator(1)])
-#     start_date = models.DateField('Начало')
-#     end_date = models.DateField('Окончание')
-#     description = models.TextField('Описание')
-#     promotion_type = models.CharField('Тип акции', max_length=10, choices=PROMOTION_TYPES, default='general')
-#     target_user = models.ForeignKey(
-#         User, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Целевой пользователь')
-#     is_active = models.BooleanField('Активна', default=True)
+    name = models.CharField('Название', max_length=255)
+    discount_percentage = models.DecimalField(
+        'Скидка в долях', max_digits=5, decimal_places=4, validators=[MinValueValidator(0), MaxValueValidator(1)])
+    start_date = models.DateField('Начало', help_text='Формат: yyyy-mm-dd')
+    end_date = models.DateField('Окончание', help_text='Формат: yyyy-mm-dd')
+    description = models.TextField('Описание')
+    promotion_type = models.CharField('Тип акции', max_length=10, choices=PROMOTION_TYPES, default='general')
+    target_user = models.ForeignKey(
+        User, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Целевой пользователь', related_name='personal_promotions')
 
-#     def clean(self):
-#         if self.start_date >= self.end_date:
-#             raise ValidationError('Дата начала должна быть раньше даты окончания.')
-#         if self.promotion_type == 'personal' and not self.target_user:
-#             raise ValidationError('Для персональной акции должен быть указан целевой пользователь.')
-#         if not self.promotion_type == 'personal' and self.target_user:
-#             raise ValidationError('Для общей акции не должен быть указан целевой пользователь.')
+    def clean(self):
+        if self.start_date and self.end_date and self.start_date >= self.end_date:
+            raise ValidationError('Дата начала должна быть раньше даты окончания.')
+        if self.promotion_type == 'personal' and not self.target_user:
+            raise ValidationError('Для персональной акции должен быть указан целевой пользователь.')
+        if not self.promotion_type == 'personal' and self.target_user:
+            raise ValidationError('Для общей акции не должен быть указан целевой пользователь.')
 
-#     def __str__(self):
-#         return self.name
+    def __str__(self):
+        return self.name
 
 
 # class Order(models.Model):
@@ -105,8 +105,8 @@ class Tariff(BaseModel):
 #     promotion = models.ForeignKey(Promotion, on_delete=models.SET_NULL, null=True, blank=True)
 #     rental_duration = models.PositiveIntegerField('Длительность (дней)')
 #     total_cost = models.DecimalField('Стоимость', max_digits=10, decimal_places=2)
-#     rental_start_date = models.DateField('Начало аренды')
-#     rental_end_date = models.DateField('Окончание аренды')
+#     rental_start_date = models.DateField('Начало аренды', help_text='Формат: yyyy-mm-dd')
+#     rental_end_date = models.DateField('Окончание аренды', help_text='Формат: yyyy-mm-dd')
 #     content_description = models.TextField('Описание содержимого')
 #     status = models.CharField('Статус', max_length=10, choices=STATUS_CHOICES, default='pending')
 #     created_at = models.DateTimeField('Создан', auto_now_add=True)

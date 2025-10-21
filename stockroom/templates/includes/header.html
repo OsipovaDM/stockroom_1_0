@@ -40,7 +40,17 @@
               Список тарифов
             </a> 
           </li>
+          <li class="nav-item">
+            <a 
+              class="nav-link {% if view_name == 'data:promotion_list' %} active {% endif %}" 
+              href="{% url 'data:promotion_list' %}"
+              >
+              Акции
+            </a> 
+          </li>
+        </ul>
 
+        <ul class="nav nav-pills">
           {% if request.user.is_authenticated %}
           <!-- Это блок ссылок для работников компании -->
             {% if request.user.is_staff or request.user.is_superuser %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block title %}
+  {% if object.pk %}
+    {% if 'edit' in request.path %}
+      Редактирование акции {{ object.name }}
+    {% else  %}
+      Удаление акции {{ object.name }}
+    {% endif %}
+  {% else %}
+    Создание акции
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="card col-4">
+      <div class="card-header">
+        {% if object.pk %}
+          {% if 'edit' in request.path %}
+            Редактирование акции
+          {% else %}
+            Подтверждение удаления
+          {% endif %}
+        {% else %}
+          Создание акции
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {% if not 'delete' in request.path %}
+            <div class="error-message">
+              <ul style="color: red;">
+                {% for error_list in form.errors.values %}
+                  {% for error in error_list %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                {% endfor %}
+              </ul>
+            </div>
+            {% bootstrap_form form %}
+          {% else %}
+            <p><strong>Название:</strong> {{ object.name }}</p>
+            <p><strong>Тип акции:</strong> {{ object.get_promotion_type_display }}</p>
+            <p><strong>Скидка:</strong> {{ object.discount_percentage|floatformat:2 }}%</p>
+            <p><strong>Период:</strong> {{ object.start_date|date:"d.m.Y" }} - {{ object.end_date|date:"d.m.Y" }}</p>
+            {% if object.promotion_type == 'personal' and object.target_user %}
+              <p><strong>Для пользователя:</strong> {{ object.target_user.get_full_name|default:object.target_user.username }}</p>
+            {% endif %}
+            <p><strong>Описание:</strong> {{ object.description }}</p>
+            <p><strong>Статус:</strong> {% if object.is_active %}Активна{% else %}Неактивна{% endif %}</p>
+            <p><strong>Автор:</strong> {{ object.author.get_full_name|default:object.author.username }}</p>
+            <p><strong>Создана:</strong> {{ object.created_at|date:"d.m.Y H:i" }}</p>
+          {% endif %}
+          {% bootstrap_button button_type="submit" content="Готово" %}
+          <a href="{% url 'data:promotion_list' %}" class="btn btn-secondary">Отмена</a>
+        </form>
+      </div>
+    </div>
+  
+  <hr>
+  <div>
+    {% if object and object.pk and not 'delete' in request.path %}
+      <a href="{% url 'data:promotion_delete' object.pk %}" class="btn btn-outline-danger ms-2">Удалить акцию</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

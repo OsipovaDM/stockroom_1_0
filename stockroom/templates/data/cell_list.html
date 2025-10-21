@@ -55,11 +55,6 @@
         <div class="col-12">
           <div class="alert alert-info">
             Ячейки не найдены.
-            {% if user.is_authenticated %}
-              <a href="{% url 'data:cell_create' %}">Добавить первую ячейку</a>
-            {% else %}
-              <a href="{% url 'login' %}">Войдите</a>, чтобы добавить ячейку
-            {% endif %}
           </div>
         </div>
       {% endfor %}
