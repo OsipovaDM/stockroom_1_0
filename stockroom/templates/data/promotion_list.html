@@ -29,8 +29,8 @@
                             <strong>Период:</strong> {{ promotion.start_date|date:"d.m.Y" }} - {{ promotion.end_date|date:"d.m.Y" }}<br>
                             <strong>Описание:</strong> {{ promotion.description|truncatewords:10 }}<br>
                             <strong>Статус:</strong> 
-                            <span class="badge {% if promotion.is_active %}bg-success{% else %}bg-secondary{% endif %}">
-                            {% if promotion.is_active %}Активна{% else %}Неактивна{% endif %}
+                            <span class="badge {% if promotion.is_current %}bg-success{% else %}bg-secondary{% endif %}">
+                            {% if promotion.is_current %}Активна{% else %}Неактивна{% endif %}
                             </span><br>
                     
                             {% if user.is_staff or user.is_superuser %}

@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, Q
 from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, UpdateView
 )
@@ -174,6 +174,29 @@ class PromotionListView(ListView):
     model = Promotion
     ordering = '-promotion_type'
     paginate_by = 5
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        today = timezone.now().date()
+        active_promotions = Promotion.objects.filter(
+            id=OuterRef('pk'),
+            start_date__lte=today,
+            end_date__gte=today,
+            is_active=True
+        )
+
+        queryset = queryset.annotate(
+            is_current=Exists(active_promotions)
+        )
+
+        if not (self.request.user.is_staff and self.request.user.is_superuser):
+            queryset = queryset.filter(
+                Q(target_user=self.request.user) |
+                Q(promotion_type='general')
+            )
+
+        return queryset
 
 
 class PromotionCreateView(WorkerMixin, PromotionMixin, PromotionFormMixin, CreateView):
