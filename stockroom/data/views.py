@@ -192,6 +192,7 @@ class PromotionListView(ListView):
 
         user = self.request.user
         if not (user.is_staff and user.is_superuser):
+            queryset = queryset.filter(is_current=True)
             if user.is_anonymous:
                 queryset = queryset.filter(promotion_type='general')
             else:
@@ -243,7 +244,7 @@ class OrderListView(LoginRequiredMixin, ListView):
         return queryset
 
 
-class OrderCreateView(WorkerMixin, OrderMixin, OrderFormMixin, CreateView):
+class OrderCreateView(OrderMixin, OrderFormMixin, CreateView):
     pass
 
     def form_valid(self, form):
