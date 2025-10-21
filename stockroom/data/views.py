@@ -49,6 +49,21 @@ class CellListView(ListView):
     ordering = 'number'
     paginate_by = 5
 
+    def get_context_data(self, **kwargs):
+        context = {}
+        cells = Cell.objects.filter(is_active=True)
+        context['size_stats'] = {
+            'small': cells.filter(size='small').count(),
+            'medium': cells.filter(size='medium').count(),
+            'large': cells.filter(size='large').count(),
+        }
+
+        user = self.request.user
+        if user.is_authenticated or (user.is_staff or user.is_superuser):
+            context.update(super().get_context_data(**kwargs))
+
+        return context
+
 
 class CellCreateView(WorkerMixin, CellMixin, CellFormMixin, CreateView):
     pass

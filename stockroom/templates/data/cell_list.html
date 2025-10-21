@@ -14,74 +14,23 @@
       </div>
     {% endif %}
 
-    <div class="row">
-      {% for cell in cell_list %}
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card h-100">
-            <div class="card-header">
-              <h5 class="card-title mb-0">Ячейка {{ cell.number }}</h5>
-            </div>
-            <div class="card-body">
-              <p class="card-text">
-                <strong>Размер:</strong> {{ cell.get_size_display }}<br>
-                <strong>Статус:</strong> 
-                <span class="badge {% if cell.is_active %}bg-success{% else %}bg-secondary{% endif %}">
-                  {% if cell.is_active %}Свободна{% else %}Занята{% endif %}
-                </span><br>
-                
-                {% if user.is_staff or user.is_superuser %}
-                  <!-- Полная информация для админов -->
-                  <strong>Автор:</strong> {{ cell.author.get_full_name|default:cell.author.username }}<br>
-                  <strong>Создана:</strong> {{ cell.created_at|date:"d.m.Y H:i" }}<br>
-                  <strong>ID:</strong> {{ cell.id }}<br>
-                {% endif %}
-              </p>
-            </div>
-            
-            <!-- Блок кнопок с проверкой прав -->
-            {% if user.is_authenticated %}
-              {%if user == cell.author or user.is_superuser %}
-                <div class="card-footer">
-                    <div class="d-flex gap-2">
-                    <a href="{% url 'data:cell_edit' cell.id %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
-                    <a href="{% url 'data:cell_delete' cell.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
-                    </div>
-                </div>
-              {% endif %}
-            {% endif %}
-          </div>
-        </div>
-      {% empty %}
-        <div class="col-12">
-          <div class="alert alert-info">
-            Ячейки не найдены.
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-
-    <!-- Статистика для админов -->
-    {% if user.is_staff or user.is_superuser %}
-      <div class="row mt-4">
+    {% if size_stats %}
+      <div class="row mb-4">
         <div class="col-12">
           <div class="card">
             <div class="card-header">
-              <h5>Статистика</h5>
+              <h5>Доступные ячейки</h5>
             </div>
             <div class="card-body">
               <div class="row">
-                <div class="col-md-3">
-                  <strong>Всего ячеек: </strong> {{ cell_list.count }}
+                <div class="col-md-4">
+                  <strong>Базовый: </strong> {{ size_stats.small }}
                 </div>
-                <div class="col-md-3">
-                  <strong>Свободных: </strong> {{ cell_list|length|add:"0" }} заглушка  <!-- Заглушка, нужно передавать в контекст -->
+                <div class="col-md-4">
+                  <strong>Классический: </strong> {{ size_stats.medium }}
                 </div>
-                <div class="col-md-3">
-                  <strong>Занятых:</strong> 0 заглушка <!-- Заглушка -->
-                </div>
-                <div class="col-md-3">
-                  <strong>По размеру: </strong> заглушка
-                  <!-- Можно добавить группировку по размеру -->
+                <div class="col-md-4">
+                  <strong>Расширенный: </strong> {{ size_stats.large }}
                 </div>
               </div>
             </div>
@@ -90,6 +39,51 @@
       </div>
     {% endif %}
 
-    {% include "includes/paginator.html" %}
+    <!-- Для сотрудников -->
+    {% if user.is_authenticated or user.is_staff and user.is_superuser %}
+      <div class="row">
+        {% for cell in cell_list %}
+          <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+              <div class="card-header">
+                <h5 class="card-title mb-0">Ячейка {{ cell.number }}</h5>
+              </div>
+              <div class="card-body">
+                <p class="card-text">
+                  <strong>Размер:</strong> {{ cell.get_size_display }}<br>
+                  <strong>Статус:</strong> 
+                  <span class="badge {% if cell.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                    {% if cell.is_active %}Свободна{% else %}Занята{% endif %}
+                  </span><br>
+                  
+                  {% if user.is_staff or user.is_superuser %}
+                    <!-- Полная информация для админов -->
+                    <strong>Автор:</strong> {{ cell.author.get_full_name|default:cell.author.username }}<br>
+                    <strong>Создана:</strong> {{ cell.created_at|date:"d.m.Y H:i" }}<br>
+                    <strong>ID:</strong> {{ cell.id }}<br>
+                  {% endif %}
+                </p>
+              </div>
+              
+              {%if user == cell.author or user.is_superuser %}
+                <div class="card-footer">
+                    <div class="d-flex gap-2">
+                    <a href="{% url 'data:cell_edit' cell.id %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                    <a href="{% url 'data:cell_delete' cell.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+                    </div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12">
+            <div class="alert alert-info">
+              Ячейки не найдены.
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      {% include "includes/paginator.html" %}
+    {% endif %}
   </div>
 {% endblock %}
