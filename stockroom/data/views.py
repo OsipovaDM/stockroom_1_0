@@ -190,11 +190,15 @@ class PromotionListView(ListView):
             is_current=Exists(active_promotions)
         )
 
-        if not (self.request.user.is_staff and self.request.user.is_superuser):
-            queryset = queryset.filter(
-                Q(target_user=self.request.user) |
-                Q(promotion_type='general')
-            )
+        user = self.request.user
+        if not (user.is_staff and user.is_superuser):
+            if user.is_anonymous:
+                queryset = queryset.filter(promotion_type='general')
+            else:
+                queryset = queryset.filter(
+                    Q(target_user=self.request.user) |
+                    Q(promotion_type='general')
+                )
 
         return queryset
 
@@ -253,32 +257,3 @@ class OrderUpdateView(AuthorMixin, OrderMixin, OrderFormMixin, UpdateView):
 
 class OrderDeleteView(AuthorMixin, OrderMixin, DeleteView):
     pass
-
-'''
-
-
-class OrderMixin:
-    model = Order
-    success_url = reverse_lazy('data:Orders')
-
-
-class OrderFormMixin:
-    template_name = 'Order/create.html'
-    fields = 
-
-
-class OrderCreateView(OrderMixin, OrderFormMixin, CreateView):
-    pass
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
-
-
-class OrderUpdateView(OrderMixin, OrderFormMixin, UpdateView):
-    pass
-
-
-class OrderDeleteView(OrderMixin, DeleteView):
-    pass
-'''
