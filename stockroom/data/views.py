@@ -204,10 +204,16 @@ class OrderFormMixin:
         'rental_start_date', 'content_description']
 
 
-class OrderListView(ListView):
+class OrderListView(LoginRequiredMixin, ListView):
     model = Order
     ordering = '-rental_start_date'
     paginate_by = 5
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if not (self.request.user.is_staff and self.request.user.is_superuser):
+            queryset = queryset.filter(author=self.request.user)
+        return queryset
 
 
 class OrderCreateView(WorkerMixin, OrderMixin, OrderFormMixin, CreateView):
