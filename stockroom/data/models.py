@@ -1,4 +1,5 @@
 # models.py
+from datetime import timedelta
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import (
@@ -88,63 +89,61 @@ class Promotion(BaseModel):
         return self.name
 
 
-# class Order(models.Model):
-#     """
-#     Заказ
-#     """
-#     STATUS_CHOICES = [
-#         ('pending', 'Ожидает'),
-#         ('active', 'Активен'),
-#         ('completed', 'Завершен'),
-#         ('cancelled', 'Отменен'),
-#     ]
-    
-#     client = models.ForeignKey(User, on_delete=models.CASCADE)
-#     cell = models.ForeignKey(Cell, on_delete=models.CASCADE)
-#     tariff = models.ForeignKey(Tariff, on_delete=models.CASCADE)
-#     promotion = models.ForeignKey(Promotion, on_delete=models.SET_NULL, null=True, blank=True)
-#     rental_duration = models.PositiveIntegerField('Длительность (дней)')
-#     total_cost = models.DecimalField('Стоимость', max_digits=10, decimal_places=2)
-#     rental_start_date = models.DateField('Начало аренды', help_text='Формат: yyyy-mm-dd')
-#     rental_end_date = models.DateField('Окончание аренды', help_text='Формат: yyyy-mm-dd')
-#     content_description = models.TextField('Описание содержимого')
-#     status = models.CharField('Статус', max_length=10, choices=STATUS_CHOICES, default='pending')
-#     created_at = models.DateTimeField('Создан', auto_now_add=True)
-#     updated_at = models.DateTimeField('Обновлен', auto_now=True)
+class Order(BaseModel):
+    """
+    Заказ
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Ожидает'),
+        ('active', 'Активен'),
+        ('completed', 'Завершен'),
+        ('cancelled', 'Отменен'),
+    ]
 
-#     def clean(self):
-#         if self.rental_start_date >= self.rental_end_date:
-#             raise ValidationError('Дата начала должна быть раньше даты окончания.')
-#         if self.cell.size != self.tariff.cell_size:
-#             raise ValidationError('Размер ячейки должен соответствовать размеру тарифа.')
-#         if self.rental_duration % self.tariff.duration != 0:
-#             raise ValidationError('Длительность заказа должна быть кратна продолжительности тарифа.')
-#         overlapping_orders = Order.objects.filter(cell=self.cell, start_date__lt=self.end_date, end_date__gt=self.start_date)
-#         if overlapping_orders.exists():
-#             raise ValidationError('На выбранные даты ячейка уже занята.')
+    client = models.ForeignKey(User, on_delete=models.CASCADE)
+    cell = models.ForeignKey(Cell, on_delete=models.CASCADE)
+    tariff = models.ForeignKey(Tariff, on_delete=models.CASCADE)
+    promotion = models.ForeignKey(Promotion, on_delete=models.SET_NULL, null=True, blank=True)
+    rental_duration = models.PositiveIntegerField('Длительность (дней)')
+    total_cost = models.DecimalField('Стоимость', max_digits=10, decimal_places=2)
+    rental_start_date = models.DateField('Начало аренды', help_text='Формат: yyyy-mm-dd')
+    rental_end_date = models.DateField('Окончание аренды', help_text='Формат: yyyy-mm-dd')
+    content_description = models.TextField('Описание содержимого')
+    status = models.CharField('Статус', max_length=10, choices=STATUS_CHOICES, default='pending')
 
-#     def save(self, *args, **kwargs):
-#         # Автоматический расчет стоимости
-#         if not self.total_cost:
-#             base_cost = self.tariff.cost * (self.rental_duration / self.tariff.duration)
-#             if self.promotion:
-#                 discount = base_cost * self.promotion.discount_percentage
-#                 self.total_cost = base_cost - discount
-#             else:
-#                 self.total_cost = base_cost
+    def clean(self):
+        if self.rental_duration % self.tariff.duration != 0:
+            raise ValidationError('Длительность заказа должна быть кратна продолжительности тарифа.')
+        self.rental_end_date = self.rental_start_date + timedelta(days=self.rental_duration)
+        if self.rental_start_date >= self.rental_end_date:
+            raise ValidationError('Дата начала должна быть раньше даты окончания.')
+        if self.cell.size != self.tariff.cell_size:
+            raise ValidationError('Размер ячейки должен соответствовать размеру тарифа.')
+        overlapping_orders = Order.objects.filter(cell=self.cell, rental_start_date__lt=self.rental_end_date, rental_end_date__gt=self.rental_start_date)
+        if overlapping_orders.exists():
+            raise ValidationError('На выбранные даты ячейка уже занята.')
 
-#         # Автоматическое обновление статуса
-#         today = timezone.now().date()
-#         if self.status != 'cancelled':
-#             if today < self.rental_start_date:
-#                 self.status = 'pending'
-#             elif self.rental_start_date <= today <= self.rental_end_date:
-#                 self.status = 'active'
-#             elif today > self.rental_end_date:
-#                 self.status = 'completed'
+    def save(self, *args, **kwargs):
+        # Автоматический расчет стоимости
+        if not self.total_cost:
+            base_cost = self.tariff.cost * int(self.rental_duration / self.tariff.duration)
+            if self.promotion:
+                discount = base_cost * self.promotion.discount_percentage
+                self.total_cost = base_cost - discount
+            else:
+                self.total_cost = base_cost
 
-#         super().save(*args, **kwargs)
+        # Автоматическое обновление статуса
+        today = timezone.now().date()
+        if self.status != 'cancelled':
+            if today < self.rental_start_date:
+                self.status = 'pending'
+            elif self.rental_start_date <= today <= self.rental_end_date:
+                self.status = 'active'
+            elif today > self.rental_end_date:
+                self.status = 'completed'
 
-#     def __str__(self):
-#         return f'{self.cell.number} - {self.client.username}'
-    
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.cell.number} - {self.client.username}'

@@ -26,6 +26,11 @@ urlpatterns = [
     path('promotions/<int:pk>/edit/', views.PromotionUpdateView.as_view(), name='promotion_edit'),
     path('promotions/<int:pk>/delete/', views.PromotionDeleteView.as_view(), name='promotion_delete'),
 
+    path('orders/', views.OrderListView.as_view(), name='order_list'),
+    path('orders/create/', views.OrderCreateView.as_view(), name='order_create'),
+    path('orders/<int:pk>/edit/', views.OrderUpdateView.as_view(), name='order_edit'),
+    path('orders/<int:pk>/delete/', views.OrderDeleteView.as_view(), name='order_delete'),
+
     # path('orders/', views.orders, name='orders'),
     # path('orders/create/', views.order_create, name='order_create'),
     # path('orders/<int:id>/', views.order_detail, name='order_detail'),

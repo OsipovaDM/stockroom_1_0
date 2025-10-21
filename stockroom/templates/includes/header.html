@@ -48,6 +48,14 @@
               Акции
             </a> 
           </li>
+          <li class="nav-item">
+            <a 
+              class="nav-link {% if view_name == 'data:order_list' %} active {% endif %}" 
+              href="{% url 'data:order_list' %}"
+              >
+              Заказы
+            </a> 
+          </li>
         </ul>
 
         <ul class="nav nav-pills">

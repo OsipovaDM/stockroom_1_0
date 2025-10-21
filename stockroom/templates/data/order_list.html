@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Список заказов
+{% endblock %}
+
+{% block content %}
+  <div>
+    <h2>Список заказов</h2>
+    
+    {% if user.is_authenticated %}
+      <div class="mb-3">
+        <a href="{% url 'data:order_create' %}" class="btn btn-primary">Создать новый заказ</a>
+      </div>
+    {% endif %}
+
+    <div class="row">
+      {% for order in order_list %}
+        <div class="col-md-6 col-lg-4 mb-3">
+          <div class="card h-100">
+            <div class="card-header">
+              <h5 class="card-title mb-0">Заказ #{{ order.id }}</h5>
+            </div>
+            <div class="card-body">
+              <p class="card-text">
+                <strong>Клиент:</strong> {{ order.client.get_full_name|default:order.client.username }}<br>
+                <strong>Ячейка:</strong> {{ order.cell.number }} ({{ order.cell.get_size_display }})<br>
+                <strong>Тариф:</strong> {{ order.tariff.name }}<br>
+                <strong>Акция:</strong> {{ order.promotion.name|default:"Не применена" }}<br>
+                <strong>Длительность:</strong> {{ order.rental_duration }} дней<br>
+                <strong>Стоимость:</strong> {{ order.total_cost }} руб.<br>
+                <strong>Период:</strong> {{ order.rental_start_date|date:"d.m.Y" }} - {{ order.rental_end_date|date:"d.m.Y" }}<br>
+                <strong>Статус:</strong> 
+                <span class="badge 
+                  {% if order.status == 'active' %}bg-success
+                  {% elif order.status == 'pending' %}bg-warning
+                  {% elif order.status == 'completed' %}bg-info
+                  {% elif order.status == 'cancelled' %}bg-danger
+                  {% else %}bg-secondary{% endif %}">
+                  {{ order.get_status_display }}
+                </span><br>
+                
+                {% if user.is_staff or user.is_superuser %}
+                  <!-- Полная информация для админов -->
+                  <strong>Описание:</strong> {{ order.content_description|truncatewords:5 }}<br>
+                  <strong>ID:</strong> {{ order.id }}<br>
+                {% endif %}
+              </p>
+            </div>
+            
+            <!-- Блок кнопок с проверкой прав -->
+            {% if user.is_authenticated %}
+              {% if user == order.client or user.is_superuser or user.is_staff %}
+                <div class="card-footer">
+                    <div class="d-flex gap-2">
+                    <a href="{% url 'data:order_edit' order.id %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                    <a href="{% url 'data:order_delete' order.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+                    </div>
+                </div>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="alert alert-info">
+            Заказы не найдены.
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Статистика для админов -->
+    {% if user.is_staff or user.is_superuser %}
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5>Статистика заказов</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <strong>Всего заказов: </strong> {{ order_list.count }}
+                </div>
+                <div class="col-md-3">
+                  <strong>Активных: </strong> {{ order_list|length|add:"0" }} заглушка
+                </div>
+                <div class="col-md-3">
+                  <strong>Ожидающих:</strong> 0 заглушка
+                </div>
+                <div class="col-md-3">
+                  <strong>Завершенных:</strong> 0 заглушка
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% include "includes/paginator.html" %}
+  </div>
+{% endblock %}
