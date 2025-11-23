@@ -41,7 +41,7 @@
     {% endif %}
 
     <!-- Для сотрудников -->
-    {% if user.is_authenticated and user.is_staff and user.is_superuser %}
+    {% if user.is_staff or user.is_superuser %}
       <div class="row">
         {% for cell in cell_list %}
           <div class="col-md-6 col-lg-4 mb-3">
